@@ -61,8 +61,8 @@ fn exchange(
     i: usize,
     j: usize,
     sol: &mut Vec<usize>,
-    diag_up: &mut Vec<usize>,
-    diag_dn: &mut Vec<usize>,
+    diag_up: &mut [usize],
+    diag_dn: &mut [usize],
 ) {
     let n = sol.len();
 
@@ -77,7 +77,9 @@ fn exchange(
     diag_dn[d] -= 1;
 
     // exchange the positions 'i' and 'j'
+    println!("{:?}", sol);
     sol.swap(i, j);
+    println!("{:?}", sol);
 
     // diagonals that started being attacked
     let d = i + sol[i];
@@ -96,10 +98,10 @@ fn construct(sol: &mut Vec<usize>) -> (Vec<usize>, Vec<usize>) {
     let n_diag = 2 * n - 1;
 
     // # upward diagonals (index 0 corresponds to the diagonal on upper-left square)
-    let mut diag_up: Vec<usize> = (0..n_diag).collect();
+    let mut diag_up: Vec<usize> = vec![0; n_diag];
 
     // # downward diagonals (index 0 corresponds to the diagonal on upper-right square)
-    let mut diag_dn: Vec<usize> = (0..n_diag).collect();
+    let mut diag_dn: Vec<usize> = vec![0; n_diag];
 
     let mut cand: Vec<usize> = (0..n).collect();
     let trials = (10.0 * (n as f64).log10()) as usize;
@@ -159,7 +161,7 @@ fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut Vec<usize>, diag_dn: &mu
     let max_iter = 100000;
     let mut tabulen = std::cmp::min(10, n);
     for n_iter in 0..max_iter {
-        let mut forelse = true;
+        let mut forelse: bool = true;
         let mut i_star: usize = 0;
         let mut colls_star: usize = 0;
         for i in (0..n).rev() {
