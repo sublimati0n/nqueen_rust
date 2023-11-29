@@ -6,6 +6,7 @@ use std::{env, io::IsTerminal, option, process::exit, time::Instant};
 use nqueen::TimeKeeper;
 use rand::Rng;
 
+#[inline(always)]
 fn show_board(sol: &Vec<usize>) {
     let n: usize = sol.len();
     for &val in sol {
@@ -20,6 +21,7 @@ fn show_board(sol: &Vec<usize>) {
     }
 }
 
+#[inline(always)]
 fn show_log(sol: &Vec<usize>, diag_up: &Vec<usize>, diag_dn: &Vec<usize>) {
     println!("array: {:?}", sol);
     show_board(sol);
@@ -30,6 +32,7 @@ fn show_log(sol: &Vec<usize>, diag_up: &Vec<usize>, diag_dn: &Vec<usize>) {
     println!();
 }
 
+#[inline(always)]
 fn diagonals(sol: &Vec<usize>) -> (Vec<usize>, Vec<usize>) {
     let n = sol.len();
     let n_diag = 2 * n - 1;
@@ -47,6 +50,7 @@ fn diagonals(sol: &Vec<usize>) -> (Vec<usize>, Vec<usize>) {
     (diag_up, diag_dn)
 }
 
+#[inline(always)]
 fn collisions(diag: &Vec<usize>) -> usize {
     let mut n_colls = 0;
     for &i in diag {
@@ -57,6 +61,7 @@ fn collisions(diag: &Vec<usize>) -> usize {
     n_colls
 }
 
+#[inline(always)]
 fn exchange(
     i: usize,
     j: usize,
@@ -91,6 +96,7 @@ fn exchange(
     diag_dn[d] += 1;
 }
 
+#[inline(always)]
 fn construct(sol: &mut Vec<usize>, time_keeper: &TimeKeeper) -> (Vec<usize>, Vec<usize>) {
     let n = sol.len();
     let n_diag = 2 * n - 1;
@@ -156,6 +162,7 @@ fn construct(sol: &mut Vec<usize>, time_keeper: &TimeKeeper) -> (Vec<usize>, Vec
     (diag_up, diag_dn)
 }
 
+#[inline(always)]
 fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut [usize], diag_dn: &mut [usize]) {
     let n: usize = sol.len();
     let mut tabu: Vec<Option<usize>> = vec![None; n];
