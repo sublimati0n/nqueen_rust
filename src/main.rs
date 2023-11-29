@@ -224,6 +224,8 @@ fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut [usize], diag_dn: &mut [
 }
 
 fn main() {
+    let start = Instant::now();
+
     let log: bool = false;
 
     let args: Vec<String> = env::args().collect();
@@ -258,4 +260,6 @@ fn main() {
     if log {
         show_log(&sol, &up, &dn);
     }
+
+    println!("Time elapsed: {:?}", start.elapsed());
 }
