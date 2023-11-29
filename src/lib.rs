@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
+use std::time::Instant;
 
 pub struct Config {
     pub query: String,
@@ -29,4 +30,16 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     println!("With text:\n{}", contents);
 
     Ok(())
+}
+
+pub struct TimeKeeper {
+    pub start_time: Instant,
+    pub time_threshold_seconds: u64,
+}
+
+impl TimeKeeper {
+    pub fn is_time_over(&self) -> bool {
+        let diff = self.start_time.elapsed();
+        diff.as_secs() >= self.time_threshold_seconds
+    }
 }

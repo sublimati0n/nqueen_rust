@@ -1,13 +1,13 @@
 extern crate nqueen;
 
 use core::panic;
-use std::{env, io::IsTerminal, option, process::exit};
+use std::{env, io::IsTerminal, option, process::exit, time::Instant};
 
+use nqueen::TimeKeeper;
 use rand::Rng;
 
 fn show_board(sol: &Vec<usize>) {
     let n: usize = sol.len();
-    // println!("{:?}", sol);
     for &val in sol {
         for j in 0..n {
             if val == j {
@@ -37,11 +37,11 @@ fn diagonals(sol: &Vec<usize>) -> (Vec<usize>, Vec<usize>) {
     let mut diag_up: Vec<_> = (0..n_diag).collect();
     let mut diag_dn: Vec<_> = (0..n_diag).collect();
 
-    for i in 0..n {
-        let d = i + sol[i];
+    for (i, &val) in sol.iter().enumerate().take(n) {
+        let d = i + val;
         diag_up[d] += 1;
 
-        let d = (n - 1) + sol[i] - i;
+        let d = (n - 1) + val - i;
         diag_dn[d] += 1;
     }
     (diag_up, diag_dn)
@@ -77,9 +77,7 @@ fn exchange(
     diag_dn[d] -= 1;
 
     // exchange the positions 'i' and 'j'
-    println!("{:?}", sol);
     sol.swap(i, j);
-    println!("{:?}", sol);
 
     // diagonals that started being attacked
     let d = i + sol[i];
@@ -93,7 +91,7 @@ fn exchange(
     diag_dn[d] += 1;
 }
 
-fn construct(sol: &mut Vec<usize>) -> (Vec<usize>, Vec<usize>) {
+fn construct(sol: &mut Vec<usize>, time_keeper: &TimeKeeper) -> (Vec<usize>, Vec<usize>) {
     let n = sol.len();
     let n_diag = 2 * n - 1;
 
@@ -104,13 +102,16 @@ fn construct(sol: &mut Vec<usize>) -> (Vec<usize>, Vec<usize>) {
     let mut diag_dn: Vec<usize> = vec![0; n_diag];
 
     let mut cand: Vec<usize> = (0..n).collect();
-    let trials = (10.0 * (n as f64).log10()) as usize;
+    let trials: usize = (10.0 * (n as f64).log10()) as usize;
     for i in 0..n {
-        let mut forelse = true;
-        for t in 0..trials {
-            let col_id = rand::thread_rng().gen_range(0..cand.len());
-            let col = cand[col_id];
-            let n_colls = diag_up[i + col] + diag_dn[(n - 1) - i + col];
+        if time_keeper.is_time_over() {
+            return (diag_up, diag_dn);
+        }
+        let mut forelse: bool = true;
+        for _ in 0..trials {
+            let col_id: usize = rand::thread_rng().gen_range(0..cand.len());
+            let col: usize = cand[col_id];
+            let n_colls: usize = diag_up[i + col] + diag_dn[(n - 1) - i + col];
             if n_colls == 0 {
                 sol[i] = col;
                 diag_up[i + col] += 1;
@@ -155,12 +156,13 @@ fn construct(sol: &mut Vec<usize>) -> (Vec<usize>, Vec<usize>) {
     (diag_up, diag_dn)
 }
 
-fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut Vec<usize>, diag_dn: &mut Vec<usize>) {
-    let n = sol.len();
+fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut [usize], diag_dn: &mut [usize]) {
+    let n: usize = sol.len();
     let mut tabu: Vec<Option<usize>> = vec![None; n];
-    let max_iter = 100000;
     let mut tabulen = std::cmp::min(10, n);
-    for n_iter in 0..max_iter {
+    let mut n_iter: usize = 0;
+    loop {
+        n_iter += 1;
         let mut forelse: bool = true;
         let mut i_star: usize = 0;
         let mut colls_star: usize = 0;
@@ -182,9 +184,7 @@ fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut Vec<usize>, diag_dn: &mu
         let mut j_star: Option<usize> = None;
         for j in 0..n {
             match tabu[j] {
-                None => {
-                    continue;
-                }
+                None => {}
                 Some(t) => {
                     if t >= n_iter || j == i_star {
                         continue;
@@ -224,21 +224,29 @@ fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut Vec<usize>, diag_dn: &mu
 }
 
 fn main() {
-    let log: bool = true;
+    let log: bool = false;
 
     let args: Vec<String> = env::args().collect();
-    if args.len() == 1 {
+    if args.len() != 3 {
         println!("$1: #queens");
+        println!("$2: time threshold [sec]");
         exit(1);
     }
+
+    let time_threshold_seconds: u64 = args[2].parse().unwrap();
+    let time_keeper: TimeKeeper = TimeKeeper {
+        start_time: Instant::now(),
+        time_threshold_seconds,
+    };
 
     let n: usize = args[1].parse().unwrap();
 
     let mut sol: Vec<_> = (0..n).collect();
 
-    let (mut up, mut dn) = construct(&mut sol);
+    let (mut up, mut dn) = construct(&mut sol, &time_keeper);
 
     println!("--------- Initial solution (random greedy) ---------");
+    println!("#collision: {}", collisions(&up) + collisions(&dn));
     if log {
         show_log(&sol, &up, &dn);
     }
@@ -246,6 +254,7 @@ fn main() {
     println!("--------- starting fast tabu search ---------");
     fast_tabu_search(&mut sol, &mut up, &mut dn);
     println!("--------- finish fast tabu search ---------");
+    println!("#collision: {}", collisions(&up) + collisions(&dn));
     if log {
         show_log(&sol, &up, &dn);
     }
