@@ -33,24 +33,6 @@ fn show_log(sol: &Vec<usize>, diag_up: &Vec<usize>, diag_dn: &Vec<usize>) {
 }
 
 #[inline(always)]
-fn diagonals(sol: &Vec<usize>) -> (Vec<usize>, Vec<usize>) {
-    let n = sol.len();
-    let n_diag = 2 * n - 1;
-
-    let mut diag_up: Vec<_> = (0..n_diag).collect();
-    let mut diag_dn: Vec<_> = (0..n_diag).collect();
-
-    for (i, &val) in sol.iter().enumerate().take(n) {
-        let d = i + val;
-        diag_up[d] += 1;
-
-        let d = (n - 1) + val - i;
-        diag_dn[d] += 1;
-    }
-    (diag_up, diag_dn)
-}
-
-#[inline(always)]
 fn collisions(diag: &Vec<usize>) -> usize {
     let mut n_colls = 0;
     for &i in diag {
