@@ -122,7 +122,8 @@ fn construct(sol: &mut Vec<usize>, time_keeper: &TimeKeeper) -> (Vec<usize>, Vec
                 sol[i] = col;
                 diag_up[i + col] += 1;
                 diag_dn[(n - 1) - i + col] += 1;
-                cand.remove(col_id);
+                cand[col_id] = cand[cand.len() - 1];
+                cand.pop();
                 forelse = false;
                 break;
             }
