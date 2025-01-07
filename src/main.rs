@@ -1,7 +1,7 @@
 extern crate nqueen;
 
 use core::panic;
-use std::{env, io::IsTerminal, option, process::exit, time::Instant};
+use std::{env, process::exit, time::Instant};
 
 use nqueen::TimeKeeper;
 use rand::Rng;
