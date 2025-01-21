@@ -1,10 +1,10 @@
 extern crate nqueen;
 
+use clap::Parser;
 use core::panic;
-use std::{env, process::exit, time::Instant};
-
 use nqueen::TimeKeeper;
 use rand::Rng;
+use std::time::Instant;
 
 #[inline(always)]
 fn show_board(sol: &Vec<usize>) {
@@ -210,25 +210,28 @@ fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut [usize], diag_dn: &mut [
     }
 }
 
+#[derive(Parser)]
+struct AppArg {
+    #[clap(short = 'n', long = "n_queen")]
+    n_queen: usize,
+    #[clap(short = 't', long = "time_threshold_seconds")]
+    time_threshold_seconds: u64,
+    #[clap(short = 'l', long = "is_show_log", default_value_t = false)]
+    is_show_log: bool,
+}
+
 fn main() {
+    let arg: AppArg = AppArg::parse();
+
+    let n: usize = arg.n_queen;
+    let time_threshold_seconds: u64 = arg.time_threshold_seconds;
+    let log: bool = arg.is_show_log;
+
     let start: Instant = Instant::now();
-
-    let log: bool = false;
-
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 3 {
-        println!("$1: #queens");
-        println!("$2: time threshold [sec]");
-        exit(1);
-    }
-
-    let time_threshold_seconds: u64 = args[2].parse().unwrap();
     let time_keeper: TimeKeeper = TimeKeeper {
         start_time: Instant::now(),
         time_threshold_seconds,
     };
-
-    let n: usize = args[1].parse().unwrap();
 
     let mut sol: Vec<_> = (0..n).collect();
 
