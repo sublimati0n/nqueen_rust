@@ -44,13 +44,7 @@ fn collisions(diag: &Vec<usize>) -> usize {
 }
 
 #[inline(always)]
-fn exchange(
-    i: usize,
-    j: usize,
-    sol: &mut Vec<usize>,
-    diag_up: &mut [usize],
-    diag_dn: &mut [usize],
-) {
+fn exchange(i: usize, j: usize, sol: &mut [usize], diag_up: &mut [usize], diag_dn: &mut [usize]) {
     let n = sol.len();
 
     let d = i + sol[i];
@@ -79,7 +73,7 @@ fn exchange(
 }
 
 #[inline(always)]
-fn construct(sol: &mut Vec<usize>, time_keeper: &TimeKeeper) -> (Vec<usize>, Vec<usize>) {
+fn construct(sol: &mut [usize], time_keeper: &TimeKeeper) -> (Vec<usize>, Vec<usize>) {
     let n = sol.len();
     let n_diag = 2 * n - 1;
 
@@ -146,7 +140,7 @@ fn construct(sol: &mut Vec<usize>, time_keeper: &TimeKeeper) -> (Vec<usize>, Vec
 }
 
 #[inline(always)]
-fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut [usize], diag_dn: &mut [usize]) {
+fn fast_tabu_search(sol: &mut [usize], diag_up: &mut [usize], diag_dn: &mut [usize]) {
     let n: usize = sol.len();
     let mut tabu: Vec<Option<usize>> = vec![None; n];
     let mut tabulen = std::cmp::min(10, n);
