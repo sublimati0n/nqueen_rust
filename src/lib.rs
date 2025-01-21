@@ -27,7 +27,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let mut contents: String = String::new();
     f.read_to_string(&mut contents)?;
 
-    println!("With text:\n{}", contents);
+    println!("With text:\n{contents}");
 
     Ok(())
 }

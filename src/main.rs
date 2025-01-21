@@ -28,7 +28,7 @@ fn show_log(sol: &Vec<usize>, diag_up: &Vec<usize>, diag_dn: &Vec<usize>) {
     println!("queens on upward diagonals: {:?}", diag_up);
     println!("queens on downward diagonals: {:?}", diag_dn);
     let n_colls = collisions(diag_up) + collisions(diag_dn);
-    println!("#collisions: {}", n_colls);
+    println!("#collisions: {n_colls}");
     println!();
 }
 
@@ -200,10 +200,7 @@ fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut [usize], diag_dn: &mut [
                 tabu = vec![None; n];
             }
             Some(j_star) => {
-                println!(
-                    "iter={}: swap {}&{}, delta={}",
-                    n_iter, i_star, j_star, delta
-                );
+                println!("iter={n_iter}: swap {i_star}&{j_star}, delta={delta}");
                 let val = n_iter + rand::thread_rng().gen_range(1..tabulen);
                 tabu[i_star] = Some(val);
                 tabu[j_star] = Some(val);
@@ -214,7 +211,7 @@ fn fast_tabu_search(sol: &mut Vec<usize>, diag_up: &mut [usize], diag_dn: &mut [
 }
 
 fn main() {
-    let start = Instant::now();
+    let start: Instant = Instant::now();
 
     let log: bool = false;
 
@@ -238,7 +235,8 @@ fn main() {
     let (mut up, mut dn) = construct(&mut sol, &time_keeper);
 
     println!("--------- Initial solution (random greedy) ---------");
-    println!("#collision: {}", collisions(&up) + collisions(&dn));
+    let mut n_colls = collisions(&up) + collisions(&dn);
+    println!("#collision: {n_colls}");
     if log {
         show_log(&sol, &up, &dn);
     }
@@ -246,7 +244,8 @@ fn main() {
     println!("--------- starting fast tabu search ---------");
     fast_tabu_search(&mut sol, &mut up, &mut dn);
     println!("--------- finish fast tabu search ---------");
-    println!("#collision: {}", collisions(&up) + collisions(&dn));
+    n_colls = collisions(&up) + collisions(&dn);
+    println!("#collision: {n_colls}",);
     if log {
         show_log(&sol, &up, &dn);
     }
