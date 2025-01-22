@@ -176,19 +176,18 @@ fn fast_tabu_search(sol: &mut [usize], diag_up: &mut [usize], diag_dn: &mut [usi
                 }
             }
 
-            let a = diag_up[j + sol[j]] + diag_dn[(n - 1) - j + sol[j]] + colls_star;
-            let b = diag_up[i_star + sol[j]]
+            let l = diag_up[j + sol[j]] + diag_dn[(n - 1) - j + sol[j]] + colls_star;
+            let r = diag_up[i_star + sol[j]]
                 + diag_dn[(n - 1) - i_star + sol[j]]
                 + diag_up[j + sol[i_star]]
                 + diag_dn[(n - 1) - j + sol[i_star]];
 
-            if a <= b {
+            if l <= r {
                 continue;
             }
 
-            let temp = a - b;
-            if temp > delta {
-                delta = temp;
+            if l - r > delta {
+                delta = l - r;
                 j_star = Some(j);
             }
         }
